@@ -1,4 +1,4 @@
-import { tracks, trackLabel } from '../content/tracks.js'
+import { tracks, tracksById, trackLabel } from '../content/tracks.js'
 
 /**
  * Navigation is two-level on purpose.
@@ -7,34 +7,34 @@ import { tracks, trackLabel } from '../content/tracks.js'
  * global bar stays the same size no matter how many pages a track grows.
  *
  * TRACK_SECTIONS holds each track's own pages. They appear in a second bar that
- * is only rendered while you are inside that track, which keeps DSA tools off
- * the app home page and out of the other tracks.
+ * is only rendered while you are inside that track. A track with no chapters
+ * yet has no items, so no second bar is drawn for it.
  */
 export const TRACKS = [
   { label: 'Home', to: '/', exact: true },
   ...tracks.map((t) => ({ label: trackLabel(t.id), to: t.to })),
 ]
 
-export const TRACK_SECTIONS = [
-  {
-    prefix: '/dsa',
-    label: trackLabel('dsa'),
-    items: [
-      { label: 'Overview', to: '/dsa', exact: true },
-      // `fallback` means "active whenever nothing else in this section matches",
-      // which is how an individual chapter page keeps Chapters highlighted.
-      { label: 'Chapters', to: '/dsa/chapters', fallback: true },
-      { label: 'Patterns', to: '/dsa/patterns' },
-      { label: 'Problems', to: '/dsa/problems' },
-      { label: 'Cheat Sheet', to: '/dsa/cheatsheet' },
-      { label: 'Roadmap', to: '/dsa/roadmap' },
-    ],
-  },
-  // No pages yet, so no second bar is rendered for these. Add them here when a
-  // track is written and its sub-navigation appears on its own.
-  { prefix: '/spring', label: trackLabel('spring'), items: [] },
-  { prefix: '/system-design', label: trackLabel('system-design'), items: [] },
-]
+/** The standard page set every finished track gets. */
+function sectionItems(track) {
+  if (!track.ready) return []
+  return [
+    { label: 'Overview', to: track.to, exact: true },
+    // `fallback` means "active whenever nothing else in this section matches",
+    // which is how an individual chapter page keeps Chapters highlighted.
+    { label: 'Chapters', to: `${track.to}/chapters`, fallback: true },
+    { label: 'Patterns', to: `${track.to}/patterns` },
+    { label: track.practice.label, to: `${track.to}/${track.practice.path}` },
+    { label: 'Cheat Sheet', to: `${track.to}/cheatsheet` },
+    ...(track.hasRoadmap ? [{ label: 'Roadmap', to: `${track.to}/roadmap` }] : []),
+  ]
+}
+
+export const TRACK_SECTIONS = tracks.map((t) => ({
+  prefix: t.to,
+  label: trackLabel(t.id),
+  items: sectionItems(t),
+}))
 
 export function sectionFor(pathname) {
   return (
@@ -58,3 +58,6 @@ export function activeItem(section, pathname) {
     null
   )
 }
+
+/** Route-safe base path for a track, e.g. '/dsa'. */
+export const basePath = (trackId) => tracksById[trackId]?.to ?? '/'

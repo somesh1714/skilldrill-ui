@@ -5,13 +5,14 @@ import { ColorModeProvider, useColorMode } from './lib/ColorMode.jsx'
 import { buildTheme } from './theme.js'
 import AppShell from './components/AppShell.jsx'
 import Home from './pages/Home.jsx'
+import { tracks } from './content/tracks.js'
 
 // The DSA content module is large; keep it out of the initial bundle.
-const DsaHome = lazy(() => import('./pages/DsaHome.jsx'))
+const TrackHome = lazy(() => import('./pages/TrackHome.jsx'))
 const Chapters = lazy(() => import('./pages/Chapters.jsx'))
 const TopicPage = lazy(() => import('./pages/TopicPage.jsx'))
 const PatternsIndex = lazy(() => import('./pages/PatternsIndex.jsx'))
-const ProblemsIndex = lazy(() => import('./pages/ProblemsIndex.jsx'))
+const Practice = lazy(() => import('./pages/Practice.jsx'))
 const CheatSheet = lazy(() => import('./pages/CheatSheet.jsx'))
 const Roadmap = lazy(() => import('./pages/Roadmap.jsx'))
 const TrackOutline = lazy(() => import('./pages/TrackOutline.jsx'))
@@ -64,15 +65,25 @@ function Themed() {
         <Suspense fallback={<Loading />}>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/dsa" element={<DsaHome />} />
-            <Route path="/dsa/chapters" element={<Chapters />} />
-            <Route path="/dsa/patterns" element={<PatternsIndex />} />
-            <Route path="/dsa/problems" element={<ProblemsIndex />} />
-            <Route path="/dsa/cheatsheet" element={<CheatSheet />} />
-            <Route path="/dsa/roadmap" element={<Roadmap />} />
-            <Route path="/dsa/:topicId" element={<TopicPage />} />
-            <Route path="/spring" element={<TrackOutline trackId="spring" />} />
-            <Route path="/system-design" element={<TrackOutline trackId="system-design" />} />
+
+            {/* A finished track gets the full page set; an unfinished one gets
+                its outline. Both come from the same registry. */}
+            {tracks.map((t) =>
+              t.ready ? (
+                <Route key={t.id} path={t.to}>
+                  <Route index element={<TrackHome trackId={t.id} />} />
+                  <Route path="chapters" element={<Chapters trackId={t.id} />} />
+                  <Route path="patterns" element={<PatternsIndex trackId={t.id} />} />
+                  <Route path={t.practice.path} element={<Practice trackId={t.id} />} />
+                  <Route path="cheatsheet" element={<CheatSheet trackId={t.id} />} />
+                  {t.hasRoadmap && <Route path="roadmap" element={<Roadmap />} />}
+                  <Route path=":topicId" element={<TopicPage trackId={t.id} />} />
+                </Route>
+              ) : (
+                <Route key={t.id} path={t.to} element={<TrackOutline trackId={t.id} />} />
+              ),
+            )}
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>

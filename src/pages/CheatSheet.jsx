@@ -14,8 +14,8 @@ import { alpha, useTheme } from '@mui/material/styles'
 import PageHeader from '../components/PageHeader.jsx'
 import TopicIcon from '../lib/icons.jsx'
 import Inline from '../components/Inline.jsx'
-import { topics } from '../content/index.js'
-import { trackCrumb } from '../content/tracks.js'
+import { contentFor } from '../content/index.js'
+import { trackCrumb, tracksById } from '../content/tracks.js'
 import { tierColor } from '../theme.js'
 
 const CONSTRAINTS = [
@@ -53,8 +53,10 @@ const SIGNALS = [
   ['Mutable array + many range queries', 'Fenwick / segment tree'],
 ]
 
-export default function CheatSheet() {
+export default function CheatSheet({ trackId = 'dsa' }) {
   const theme = useTheme()
+  const track = tracksById[trackId]
+  const { topics } = contentFor(trackId)
   const [query, setQuery] = useState('')
   const [expanded, setExpanded] = useState(() => new Set(topics.map((t) => t.id)))
 
@@ -83,7 +85,7 @@ export default function CheatSheet() {
         eyebrow="Revision"
         title="The cheat sheet"
         lead="Everything compressed. Read this the night before an interview — the constraint table and the signal table alone will carry most of a screen."
-        crumbs={[{ label: 'Home', to: '/' }, trackCrumb('dsa'), { label: 'Cheat Sheet' }]}
+        crumbs={[{ label: 'Home', to: '/' }, trackCrumb(trackId), { label: 'Cheat Sheet' }]}
       />
 
       <Container maxWidth="xl" sx={{ px: { xs: 2, md: 3 }, py: { xs: 3, md: 4 } }}>
@@ -234,7 +236,7 @@ export default function CheatSheet() {
                 </Grid>
 
                 <Box sx={{ mt: 1.5 }}>
-                  <Button component={RouterLink} to={`/dsa/${t.id}`} size="small" sx={{ px: 0, minWidth: 0 }}>
+                  <Button component={RouterLink} to={`${track.to}/${t.id}`} size="small" sx={{ px: 0, minWidth: 0 }}>
                     Open the chapter →
                   </Button>
                 </Box>

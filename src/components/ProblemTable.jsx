@@ -10,6 +10,7 @@ import SearchRoundedIcon from '@mui/icons-material/SearchRounded'
 import { alpha, useTheme } from '@mui/material/styles'
 import { difficultyColor } from '../theme.js'
 import { useProgress, problemKey } from '../lib/progress.js'
+import { basePath } from '../lib/navigation.js'
 import Inline from './Inline.jsx'
 
 export function DifficultyChip({ value }) {
@@ -29,7 +30,9 @@ export function DifficultyChip({ value }) {
   )
 }
 
-export default function ProblemTable({ problems, showTopic = false, filterable = true, dense = false }) {
+export default function ProblemTable({
+  problems, trackId = 'dsa', showTopic = false, filterable = true, dense = false,
+}) {
   const theme = useTheme()
   const { solved, toggle } = useProgress()
   const [query, setQuery] = useState('')
@@ -121,29 +124,40 @@ export default function ProblemTable({ problems, showTopic = false, filterable =
                     </Tooltip>
                   </TableCell>
                   <TableCell sx={{ minWidth: 200 }}>
-                    <MuiLink
-                      href={p.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      underline="hover"
-                      sx={{
-                        fontWeight: 600, fontSize: '0.88rem',
-                        display: 'inline-flex', alignItems: 'center', gap: 0.5,
-                        textDecoration: done ? 'line-through' : 'none',
-                        color: 'text.primary',
-                        '&:hover': { color: 'primary.main' },
-                      }}
-                    >
-                      {p.name}
-                      <OpenInNewRoundedIcon sx={{ fontSize: 13, opacity: 0.45 }} />
-                    </MuiLink>
+                    {p.url ? (
+                      <MuiLink
+                        href={p.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        underline="hover"
+                        sx={{
+                          fontWeight: 600, fontSize: '0.88rem',
+                          display: 'inline-flex', alignItems: 'center', gap: 0.5,
+                          textDecoration: done ? 'line-through' : 'none',
+                          color: 'text.primary',
+                          '&:hover': { color: 'primary.main' },
+                        }}
+                      >
+                        {p.name}
+                        <OpenInNewRoundedIcon sx={{ fontSize: 13, opacity: 0.45 }} />
+                      </MuiLink>
+                    ) : (
+                      <Typography
+                        sx={{
+                          fontWeight: 600, fontSize: '0.88rem',
+                          textDecoration: done ? 'line-through' : 'none',
+                        }}
+                      >
+                        {p.name}
+                      </Typography>
+                    )}
                   </TableCell>
                   <TableCell><DifficultyChip value={p.difficulty} /></TableCell>
                   {showTopic && (
                     <TableCell>
                       <MuiLink
                         component={RouterLink}
-                        to={`/dsa/${p.topicId}`}
+                        to={`${basePath(trackId)}/${p.topicId}`}
                         underline="hover"
                         sx={{ fontSize: '0.82rem', color: 'text.secondary' }}
                       >

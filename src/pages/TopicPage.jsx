@@ -19,8 +19,8 @@ import Inline from '../components/Inline.jsx'
 import PatternCard from '../components/PatternCard.jsx'
 import ProblemTable from '../components/ProblemTable.jsx'
 import TopicIcon from '../lib/icons.jsx'
-import { topicsById, neighbours, DIFFICULTY_ORDER } from '../content/index.js'
-import { trackCrumb } from '../content/tracks.js'
+import { contentFor, neighbours, DIFFICULTY_ORDER } from '../content/index.js'
+import { trackCrumb, tracksById } from '../content/tracks.js'
 import { tierColor } from '../theme.js'
 import { useProgress, problemKey } from '../lib/progress.js'
 
@@ -48,7 +48,9 @@ function Toc({ topic, activeId }) {
 
   const items = useMemo(() => {
     const out = [{ id: 'overview', label: 'Overview', depth: 0 }]
-    if (topic.complexity?.length) out.push({ id: 'complexity-table', label: 'Complexity reference', depth: 0 })
+    if (topic.reference || topic.complexity?.length) {
+      out.push({ id: 'quick-reference', label: topic.reference?.title || 'Complexity reference', depth: 0 })
+    }
     topic.sections.forEach((s) => out.push({ id: s.id, label: s.title, depth: 1 }))
     if (topic.patterns?.length) {
       out.push({ id: 'patterns', label: 'Patterns', depth: 0 })
@@ -114,9 +116,11 @@ function Toc({ topic, activeId }) {
 }
 
 /* ---------------------------------- page ---------------------------------- */
-export default function TopicPage() {
+export default function TopicPage({ trackId = 'dsa' }) {
   const { topicId } = useParams()
   const theme = useTheme()
+  const track = tracksById[trackId]
+  const { topicsById } = contentFor(trackId)
   const topic = topicsById[topicId]
   const [activeId, setActiveId] = useState('overview')
   const { solved } = useProgress()
@@ -145,9 +149,9 @@ export default function TopicPage() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [topic, topicId])
 
-  if (!topic) return <Navigate to="/dsa" replace />
+  if (!topic) return <Navigate to={track.to} replace />
 
-  const { prev, next } = neighbours(topic.id)
+  const { prev, next } = neighbours(trackId, topic.id)
   const color = tierColor[topic.tier] || theme.palette.primary.main
 
   const sortedProblems = [...(topic.problems || [])]
@@ -167,7 +171,7 @@ export default function TopicPage() {
         title={topic.title}
         lead={topic.tagline}
         icon={<TopicIcon name={topic.icon} />}
-        crumbs={[{ label: 'Home', to: '/' }, trackCrumb('dsa'), { label: topic.short || topic.title }]}
+        crumbs={[{ label: 'Home', to: '/' }, trackCrumb(trackId), { label: topic.short || topic.title }]}
         chips={[
           { label: `${topic.estHours}h`, icon: <ScheduleRoundedIcon sx={{ fontSize: 14 }} /> },
           { label: `${topic.patterns?.length || 0} patterns` },
@@ -185,7 +189,7 @@ export default function TopicPage() {
                 key={id}
                 size="small"
                 component={RouterLink}
-                to={`/dsa/${id}`}
+                to={`${track.to}/${id}`}
                 clickable
                 label={topicsById[id]?.short || id}
                 variant="outlined"
@@ -235,42 +239,52 @@ export default function TopicPage() {
                 </Typography>
               </Box>
 
-              {/* complexity reference */}
-              {topic.complexity?.length > 0 && (
-                <>
-                  <SectionTitle id="complexity-table" icon={<ScheduleRoundedIcon sx={{ color }} />}>
-                    Complexity reference
-                  </SectionTitle>
-                  <TableContainer component={Paper} variant="outlined" sx={{ overflowX: 'auto' }}>
-                    <Table size="small" sx={{ minWidth: 560 }}>
-                      <TableHead>
-                        <TableRow sx={{ bgcolor: alpha(theme.palette.text.primary, theme.palette.mode === 'dark' ? 0.04 : 0.025) }}>
-                          <TableCell sx={{ fontSize: '0.78rem' }}>Operation</TableCell>
-                          <TableCell sx={{ fontSize: '0.78rem' }}>Time</TableCell>
-                          <TableCell sx={{ fontSize: '0.78rem' }}>Space</TableCell>
-                          <TableCell sx={{ fontSize: '0.78rem' }}>Notes</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {topic.complexity.map((row, i) => (
-                          <TableRow key={i} hover>
-                            <TableCell sx={{ fontSize: '0.84rem', fontWeight: 600 }}>
-                              <Inline text={row.op} />
-                            </TableCell>
-                            <TableCell sx={{ fontSize: '0.84rem', color: 'primary.main', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                              {row.time}
-                            </TableCell>
-                            <TableCell sx={{ fontSize: '0.84rem', whiteSpace: 'nowrap' }}>{row.space}</TableCell>
-                            <TableCell sx={{ fontSize: '0.82rem', color: 'text.secondary' }}>
-                              <Inline text={row.note} />
-                            </TableCell>
+              {/* quick reference — either a complexity table or a custom one */}
+              {(topic.reference || topic.complexity?.length > 0) && (() => {
+                const ref = topic.reference || {
+                  title: 'Complexity reference',
+                  head: ['Operation', 'Time', 'Space', 'Notes'],
+                  rows: topic.complexity.map((r) => [r.op, r.time, r.space, r.note]),
+                }
+                return (
+                  <>
+                    <SectionTitle id="quick-reference" icon={<ScheduleRoundedIcon sx={{ color }} />}>
+                      {ref.title || 'Quick reference'}
+                    </SectionTitle>
+                    <TableContainer component={Paper} variant="outlined" sx={{ overflowX: 'auto' }}>
+                      <Table size="small" sx={{ minWidth: 560 }}>
+                        <TableHead>
+                          <TableRow sx={{ bgcolor: alpha(theme.palette.text.primary, theme.palette.mode === 'dark' ? 0.04 : 0.025) }}>
+                            {ref.head.map((h, i) => (
+                              <TableCell key={i} sx={{ fontSize: '0.78rem' }}><Inline text={h} /></TableCell>
+                            ))}
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </>
-              )}
+                        </TableHead>
+                        <TableBody>
+                          {ref.rows.map((row, i) => (
+                            <TableRow key={i} hover>
+                              {row.map((cell, k) => (
+                                <TableCell
+                                  key={k}
+                                  sx={{
+                                    fontSize: k === 0 ? '0.84rem' : '0.82rem',
+                                    fontWeight: k === 0 ? 600 : 400,
+                                    color: k === 0 ? 'text.primary' : k === 1 ? 'primary.main' : 'text.secondary',
+                                    verticalAlign: 'top',
+                                    whiteSpace: k === 1 && ref.rows[i].length === 4 ? 'nowrap' : 'normal',
+                                  }}
+                                >
+                                  <Inline text={cell} />
+                                </TableCell>
+                              ))}
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </>
+                )
+              })()}
 
               {/* lesson sections */}
               {topic.sections.map((s) => (
@@ -378,7 +392,7 @@ export default function TopicPage() {
                     Sorted Easy → Hard. Work down the list; each row names the pattern it drills and the
                     one insight that unlocks it. Tick them off as you go — progress is saved locally.
                   </Typography>
-                  <ProblemTable problems={sortedProblems} />
+                  <ProblemTable problems={sortedProblems} trackId={trackId} />
                 </>
               )}
 
@@ -390,7 +404,7 @@ export default function TopicPage() {
                 {prev ? (
                   <Button
                     component={RouterLink}
-                    to={`/dsa/${prev.id}`}
+                    to={`${track.to}/${prev.id}`}
                     startIcon={<ArrowBackRoundedIcon />}
                     sx={{ justifyContent: 'flex-start', textAlign: 'left', flex: 1, p: 2, border: `1px solid ${theme.palette.divider}`, borderRadius: 2 }}
                   >
@@ -406,7 +420,7 @@ export default function TopicPage() {
                 {next ? (
                   <Button
                     component={RouterLink}
-                    to={`/dsa/${next.id}`}
+                    to={`${track.to}/${next.id}`}
                     endIcon={<ArrowForwardRoundedIcon />}
                     sx={{ justifyContent: 'flex-end', textAlign: 'right', flex: 1, p: 2, border: `1px solid ${theme.palette.divider}`, borderRadius: 2 }}
                   >

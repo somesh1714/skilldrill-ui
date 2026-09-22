@@ -1,23 +1,20 @@
 import { useMemo, useState } from 'react'
-import {
-  Box, Container, Paper, Stack, Typography, Chip, LinearProgress, Button,
-} from '@mui/material'
+import { Box, Button, Chip, Container, LinearProgress, Paper, Stack, Typography } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import RestartAltRoundedIcon from '@mui/icons-material/RestartAltRounded'
 import { alpha, useTheme } from '@mui/material/styles'
 import PageHeader from '../components/PageHeader.jsx'
 import ProblemTable from '../components/ProblemTable.jsx'
-import { allProblems, topics, DIFFICULTY_ORDER } from '../content/index.js'
-import { trackCrumb } from '../content/tracks.js'
+import { contentFor, DIFFICULTY_ORDER } from '../content/index.js'
+import { trackCrumb, tracksById } from '../content/tracks.js'
 import { difficultyColor } from '../theme.js'
 import { useProgress, problemKey } from '../lib/progress.js'
 
 function CountTile({ label, value, total, color }) {
-  const theme = useTheme()
   const pct = total ? (value / total) * 100 : 0
   return (
     <Paper variant="outlined" sx={{ p: 1.75, borderColor: alpha(color, 0.3) }}>
-      <Stack direction="row" sx={{ alignItems: 'baseline', justifyContent: 'space-between' }}>
+      <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
         <Typography variant="caption" sx={{ fontWeight: 800, color, letterSpacing: '0.05em' }}>
           {label.toUpperCase()}
         </Typography>
@@ -35,10 +32,17 @@ function CountTile({ label, value, total, color }) {
   )
 }
 
-export default function ProblemsIndex() {
+/**
+ * A track's practice page. DSA calls these problems, Spring calls them
+ * exercises — the wording comes from the track registry.
+ */
+export default function Practice({ trackId = 'dsa' }) {
   const theme = useTheme()
-  const { solved, count, reset } = useProgress()
+  const { solved, reset } = useProgress()
   const [topicFilter, setTopicFilter] = useState('All')
+
+  const track = tracksById[trackId]
+  const { allProblems, topics } = contentFor(trackId)
 
   const sorted = useMemo(
     () =>
@@ -48,10 +52,11 @@ export default function ProblemsIndex() {
           a.topicTitle.localeCompare(b.topicTitle) ||
           a.name.localeCompare(b.name),
       ),
-    [],
+    [allProblems],
   )
 
   const shown = topicFilter === 'All' ? sorted : sorted.filter((p) => p.topicId === topicFilter)
+  const solvedHere = allProblems.filter((p) => solved[problemKey(p.topicId, p.name)]).length
 
   const byDifficulty = useMemo(() => {
     const out = { Easy: { total: 0, done: 0 }, Medium: { total: 0, done: 0 }, Hard: { total: 0, done: 0 } }
@@ -62,18 +67,18 @@ export default function ProblemsIndex() {
       if (solved[problemKey(p.topicId, p.name)]) bucket.done++
     }
     return out
-  }, [solved])
+  }, [solved, allProblems])
 
   return (
     <Box>
       <PageHeader
-        eyebrow="Practice"
-        title="Problem tracker"
-        lead="Every problem in the curriculum, sorted Easy → Hard, tagged with its pattern and the single insight that unlocks it. Tick them off as you solve them — progress is stored in this browser."
-        crumbs={[{ label: 'Home', to: '/' }, trackCrumb('dsa'), { label: 'Problems' }]}
+        eyebrow={track.practice.eyebrow}
+        title={track.practice.title}
+        lead={track.practice.lead}
+        crumbs={[{ label: 'Home', to: '/' }, trackCrumb(trackId), { label: track.practice.label }]}
         chips={[
-          { label: `${allProblems.length} problems` },
-          { label: `${count} solved`, color: count ? 'success' : undefined },
+          { label: `${allProblems.length} ${track.practice.noun}` },
+          { label: `${solvedHere} done`, color: solvedHere ? 'success' : undefined },
         ]}
       />
 
@@ -82,7 +87,7 @@ export default function ProblemsIndex() {
           {['Easy', 'Medium', 'Hard'].map((d) => (
             <Grid key={d} size={{ xs: 12, sm: 4, lg: 3 }}>
               <CountTile
-                label={`${d} solved`}
+                label={`${d} done`}
                 value={byDifficulty[d].done}
                 total={byDifficulty[d].total}
                 color={difficultyColor[d]}
@@ -98,13 +103,13 @@ export default function ProblemsIndex() {
                 OVERALL
               </Typography>
               <Typography sx={{ fontWeight: 800, fontSize: '1.5rem', lineHeight: 1.2 }}>
-                {Math.round((count / allProblems.length) * 100)}%
+                {allProblems.length ? Math.round((solvedHere / allProblems.length) * 100) : 0}%
               </Typography>
               <Button
                 size="small"
                 startIcon={<RestartAltRoundedIcon />}
                 onClick={reset}
-                disabled={count === 0}
+                disabled={solvedHere === 0}
                 sx={{ alignSelf: 'flex-start', px: 0, minWidth: 0 }}
               >
                 Reset progress
@@ -115,7 +120,7 @@ export default function ProblemsIndex() {
 
         <Box sx={{ mb: 2.5 }}>
           <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', display: 'block', mb: 0.75 }}>
-            FILTER BY TOPIC
+            FILTER BY CHAPTER
           </Typography>
           <Stack direction="row" spacing={0.75} useFlexGap sx={{ flexWrap: 'wrap' }}>
             <Chip
@@ -138,17 +143,19 @@ export default function ProblemsIndex() {
           </Stack>
         </Box>
 
-        <ProblemTable problems={shown} showTopic />
+        <ProblemTable problems={shown} trackId={trackId} showTopic />
 
-        <Typography
-          variant="caption"
-          color="text.disabled"
-          sx={{ display: 'block', mt: 2, bgcolor: alpha(theme.palette.text.primary, 0.02), p: 1.5, borderRadius: 1.5 }}
-        >
-          Note: the same problem appears under more than one topic where it genuinely drills more than
-          one pattern — Trapping Rain Water, for example, is both a two-pointer and a monotonic-stack
-          exercise. Solving it once and ticking it in both places is fine.
-        </Typography>
+        {trackId === 'dsa' && (
+          <Typography
+            variant="caption"
+            color="text.disabled"
+            sx={{ display: 'block', mt: 2, bgcolor: alpha(theme.palette.text.primary, 0.02), p: 1.5, borderRadius: 1.5 }}
+          >
+            Note: the same problem appears under more than one chapter where it genuinely drills more
+            than one pattern — Trapping Rain Water, for example, is both a two-pointer and a
+            monotonic-stack exercise. Solving it once and ticking it in both places is fine.
+          </Typography>
+        )}
       </Container>
     </Box>
   )

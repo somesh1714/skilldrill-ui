@@ -21,6 +21,39 @@ export const tracks = [
       'Every pattern with its when-to-apply rules',
       'A sorted problem set per chapter',
     ],
+    // Shown on the track home page under "how to use this track".
+    habits: [
+      {
+        icon: 'MenuBookRounded',
+        title: 'Read the chapter like a textbook',
+        text: 'Each topic opens with a mental model and the "why", not a wall of code. Work through the sections in order — they build on each other deliberately.',
+      },
+      {
+        icon: 'PatternRounded',
+        title: 'Learn patterns, not solutions',
+        text: 'Every pattern states when to use it, how to recognise it in a problem statement, a reusable template, and the gotchas that fail hidden tests.',
+      },
+      {
+        icon: 'FormatListNumberedRounded',
+        title: 'Drill the sorted problem list',
+        text: 'Problems are ordered Easy → Hard and tagged with the pattern they exercise. Each one carries the single insight that unlocks it.',
+      },
+      {
+        icon: 'BoltRounded',
+        title: 'Revise from the cheat sheet',
+        text: 'The night before an interview, read only the cheat sheet and the pattern index. Everything compresses down to a page per topic.',
+      },
+    ],
+    // What this track calls its practice page, and how it describes it.
+    practice: {
+      label: 'Problems',
+      path: 'problems',
+      title: 'Problem tracker',
+      eyebrow: 'Practice',
+      lead: 'Every problem in the curriculum, sorted Easy → Hard, tagged with its pattern and the single insight that unlocks it. Tick them off as you solve them — progress is stored in this browser.',
+      noun: 'problems',
+    },
+    hasRoadmap: true,
     hero: {
       eyebrow: 'Track · Data Structures & Algorithms',
       headline: ['Learn the patterns.', 'Then the problems get easy.'],
@@ -34,65 +67,53 @@ export const tracks = [
     title: 'Java & Spring Boot',
     icon: 'CoffeeRounded',
     color: '#0f766e',
-    status: 'Planned',
-    ready: false,
+    status: 'Available now',
+    ready: true,
     tags: ['Java', 'Backend', 'Spring', 'JVM'],
     blurb:
       'The backend track: core Java and the JVM memory model, collections internals, concurrency, then Spring Boot — dependency injection, JPA, REST design, security, testing and observability.',
-    bullets: ['Java core & the JVM', 'Concurrency without the folklore', 'Spring Boot end to end'],
+    bullets: [
+      'Java core, the JVM and how memory really behaves',
+      'Concurrency without the folklore',
+      'Spring Boot from the container to production',
+    ],
+    habits: [
+      {
+        icon: 'MenuBookRounded',
+        title: 'Read it before you need it',
+        text: 'Every chapter explains the machinery before the annotation. Knowing what Spring does on your behalf is what stops the framework feeling like magic.',
+      },
+      {
+        icon: 'TerminalRounded',
+        title: 'Type the code out',
+        text: 'The snippets are small on purpose. Run them, break them, and watch what changes — backend behaviour is much easier to remember once you have seen it fail.',
+      },
+      {
+        icon: 'BugReportRounded',
+        title: 'Collect the failure modes',
+        text: 'Each chapter ends with the mistakes that actually cause production incidents. Those are the questions interviewers ask, because they are the ones that cost money.',
+      },
+      {
+        icon: 'ScienceRounded',
+        title: 'Do the exercises',
+        text: 'Every chapter has hands-on tasks with the outcome you should see. Reading about the N+1 problem teaches far less than watching 200 queries appear in your logs.',
+      },
+    ],
+    practice: {
+      label: 'Exercises',
+      path: 'exercises',
+      title: 'Hands-on exercises',
+      eyebrow: 'Practice',
+      lead: 'Concrete tasks for every chapter, ordered from warm-up to hard. Each one names what you should build and what you should observe when it works — or when it deliberately breaks.',
+      noun: 'exercises',
+    },
+    hasRoadmap: false,
     hero: {
       eyebrow: 'Track · Java & Spring Boot',
       headline: ['Know what the framework does.', 'Then the magic stops being magic.'],
       lead:
         'The backend track, written to the same standard as the DSA chapters: how the JVM actually behaves, what Spring is really doing when it wires your beans, and the production practices that keep a service healthy once real traffic arrives.',
     },
-    outline: [
-      {
-        group: 'Java core',
-        items: [
-          'JVM memory model: heap, stack, metaspace, and what actually causes an OOM',
-          'Collections internals — how HashMap resizes and treeifies, when ArrayDeque beats LinkedList',
-          'equals / hashCode / Comparable contracts and the bugs that follow from breaking them',
-          'Generics, type erasure, wildcards and why `List<Object>` is not a `List<String>` supertype',
-          'Streams and Optional: where they help, and where they quietly cost you',
-          'Exceptions, try-with-resources, and designing failure modes',
-        ],
-      },
-      {
-        group: 'Concurrency',
-        items: [
-          'Threads, executors and the thread pool sizing question interviewers love',
-          'synchronized vs ReentrantLock vs atomics vs volatile — and the happens-before relation',
-          'ConcurrentHashMap, CopyOnWriteArrayList and when lock-free actually wins',
-          'CompletableFuture composition and structured concurrency',
-          'Virtual threads: what changes, and what does not',
-          'Classic hazards: deadlock, livelock, race conditions, false sharing',
-        ],
-      },
-      {
-        group: 'Spring Boot',
-        items: [
-          'The container: beans, scopes, the lifecycle, and why field injection is discouraged',
-          'Auto-configuration — how starters actually decide what to wire up',
-          'Configuration, profiles, and externalised secrets done properly',
-          'REST API design: versioning, status codes, idempotency, pagination, error contracts',
-          'Spring Data JPA: entity mapping, the N+1 problem, fetch strategies, transactions',
-          'Spring Security: filter chain, JWT and OAuth2 flows, method-level authorisation',
-          'Testing: slice tests, @SpringBootTest, Testcontainers, and what to mock',
-          'Observability: Actuator, metrics, structured logging, tracing',
-        ],
-      },
-      {
-        group: 'Production practice',
-        items: [
-          'Caching layers and invalidation strategies',
-          'Database migrations and zero-downtime deploys',
-          'Resilience: timeouts, retries with backoff, circuit breakers, bulkheads',
-          'Message-driven services with Kafka or RabbitMQ',
-          'Performance profiling and the JVM flags that matter',
-        ],
-      },
-    ],
   },
   {
     id: 'system-design',
@@ -106,6 +127,37 @@ export const tracks = [
     blurb:
       'Scaling fundamentals, caching strategies, databases and consistency models, queues and event-driven design, plus a library of worked design walkthroughs.',
     bullets: ['The building blocks', 'Frameworks for trade-offs', 'Worked case studies'],
+    habits: [
+      {
+        icon: 'MenuBookRounded',
+        title: 'Learn the building blocks first',
+        text: 'Designs are assembled from a small number of components. Know each one\u2019s failure modes before trying to combine them.',
+      },
+      {
+        icon: 'FunctionsRounded',
+        title: 'Estimate out loud',
+        text: 'Most design answers turn on a number. Practise back-of-the-envelope maths until it is automatic.',
+      },
+      {
+        icon: 'PatternRounded',
+        title: 'Name the trade-off',
+        text: 'There is no right architecture. Say what you are buying and what you are paying, every time.',
+      },
+      {
+        icon: 'ScienceRounded',
+        title: 'Work through real designs',
+        text: 'Case studies are where the vocabulary turns into judgement.',
+      },
+    ],
+    practice: {
+      label: 'Case studies',
+      path: 'case-studies',
+      title: 'Design case studies',
+      eyebrow: 'Practice',
+      lead: 'Worked designs, from a URL shortener to a ride-matching service, each one exercising a different set of building blocks.',
+      noun: 'case studies',
+    },
+    hasRoadmap: false,
     hero: {
       eyebrow: 'Track · System Design',
       headline: ['Name the trade-off.', 'Then the design defends itself.'],

@@ -5,8 +5,9 @@ import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded'
 import TopicIcon from '../lib/icons.jsx'
 import { tierColor } from '../theme.js'
 import { useProgress, problemKey } from '../lib/progress.js'
+import { basePath } from '../lib/navigation.js'
 
-export default function TopicCard({ topic, index = 0 }) {
+export default function TopicCard({ topic, trackId = 'dsa', index = 0 }) {
   const theme = useTheme()
   const { solved } = useProgress()
   const color = tierColor[topic.tier] || theme.palette.primary.main
@@ -25,7 +26,7 @@ export default function TopicCard({ topic, index = 0 }) {
         '&:hover': { transform: 'translateY(-3px)', borderColor: alpha(color, 0.5) },
       }}
     >
-      <CardActionArea component={RouterLink} to={`/dsa/${topic.id}`} sx={{ height: '100%', alignItems: 'stretch' }}>
+      <CardActionArea component={RouterLink} to={`${basePath(trackId)}/${topic.id}`} sx={{ height: '100%', alignItems: 'stretch' }}>
         <CardContent sx={{ p: 2.25, height: '100%', display: 'flex', flexDirection: 'column' }}>
           <Stack direction="row" spacing={1.5} sx={{ alignItems: 'flex-start', mb: 1.25 }}>
             <Box

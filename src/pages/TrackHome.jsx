@@ -1,4 +1,4 @@
-import { Link as RouterLink } from 'react-router-dom'
+import { Link as RouterLink, Navigate } from 'react-router-dom'
 import {
   Box, Button, Card, CardActionArea, CardContent, Container, Divider,
   IconButton, LinearProgress, Paper, Stack, Tooltip, Typography,
@@ -6,76 +6,13 @@ import {
 import Grid from '@mui/material/Grid'
 import RestartAltRoundedIcon from '@mui/icons-material/RestartAltRounded'
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded'
-import MapRoundedIcon from '@mui/icons-material/MapRounded'
-import PatternRoundedIcon from '@mui/icons-material/PatternRounded'
-import ChecklistRoundedIcon from '@mui/icons-material/ChecklistRounded'
-import BoltRoundedIcon from '@mui/icons-material/BoltRounded'
-import MenuBookRoundedIcon from '@mui/icons-material/MenuBookRounded'
-import FormatListNumberedRoundedIcon from '@mui/icons-material/FormatListNumberedRounded'
-import LibraryBooksRoundedIcon from '@mui/icons-material/LibraryBooksRounded'
 import { alpha, useTheme } from '@mui/material/styles'
-import { topicsByTier, topics, allProblems, stats } from '../content/index.js'
+import TopicIcon from '../lib/icons.jsx'
+import { contentFor } from '../content/index.js'
 import { tracksById } from '../content/tracks.js'
 import { tierAnchor } from '../lib/anchors.js'
 import { tierColor } from '../theme.js'
-import { useProgress } from '../lib/progress.js'
-
-const DESTINATIONS = [
-  {
-    to: '/dsa/chapters',
-    label: 'Chapters',
-    Icon: LibraryBooksRoundedIcon,
-    text: `All ${stats.topics} chapters, grouped into four tiers and ordered by dependency.`,
-    primary: true,
-  },
-  {
-    to: '/dsa/roadmap',
-    label: 'Study roadmap',
-    Icon: MapRoundedIcon,
-    text: 'A 12-week plan with weekly goals, targets and the habits that make it work.',
-  },
-  {
-    to: '/dsa/patterns',
-    label: 'Pattern index',
-    Icon: PatternRoundedIcon,
-    text: `All ${stats.patterns} patterns in one searchable list — paste in a phrase from a problem statement.`,
-  },
-  {
-    to: '/dsa/problems',
-    label: 'Problem tracker',
-    Icon: ChecklistRoundedIcon,
-    text: `${stats.problems} problems, filterable by topic and difficulty, with your progress.`,
-  },
-  {
-    to: '/dsa/cheatsheet',
-    label: 'Cheat sheet',
-    Icon: BoltRoundedIcon,
-    text: 'Constraints, signals and every template compressed to one page for revision.',
-  },
-]
-
-const HABITS = [
-  {
-    Icon: MenuBookRoundedIcon,
-    title: 'Read the chapter like a textbook',
-    text: 'Each topic opens with a mental model and the "why", not a wall of code. Work through the sections in order — they build on each other deliberately.',
-  },
-  {
-    Icon: PatternRoundedIcon,
-    title: 'Learn patterns, not solutions',
-    text: 'Every pattern states when to use it, how to recognise it in a problem statement, a reusable template, and the gotchas that fail hidden tests.',
-  },
-  {
-    Icon: FormatListNumberedRoundedIcon,
-    title: 'Drill the sorted problem list',
-    text: 'Problems are ordered Easy → Hard and tagged with the pattern they exercise. Each one carries the single insight that unlocks it.',
-  },
-  {
-    Icon: BoltRoundedIcon,
-    title: 'Revise from the cheat sheet',
-    text: 'The night before an interview, read only the cheat sheet and the pattern index. Everything compresses down to a page per topic.',
-  },
-]
+import { useProgress, problemKey } from '../lib/progress.js'
 
 function Stat({ value, label }) {
   return (
@@ -90,14 +27,59 @@ function Stat({ value, label }) {
   )
 }
 
-export default function DsaHome() {
+/**
+ * The landing page for a finished track. Everything on it comes from the track
+ * registry plus that track's chapters, so a new track gets this page for free.
+ */
+export default function TrackHome({ trackId }) {
   const theme = useTheme()
-  const { count, reset } = useProgress()
+  const { solved, reset } = useProgress()
 
-  const track = tracksById.dsa
+  const track = tracksById[trackId]
+  const { topics, topicsByTier, allProblems, stats } = contentFor(trackId)
+
+  if (!track) return <Navigate to="/" replace />
+
+  const base = track.to
   const firstChapter = topics[0]
-  const totalProblems = allProblems.length
-  const pct = totalProblems ? (count / totalProblems) * 100 : 0
+  const solvedHere = allProblems.filter((p) => solved[problemKey(p.topicId, p.name)]).length
+  const pct = allProblems.length ? (solvedHere / allProblems.length) * 100 : 0
+
+  const destinations = [
+    {
+      to: `${base}/chapters`,
+      label: 'Chapters',
+      icon: 'LibraryBooksRounded',
+      text: `All ${stats.topics} chapters, grouped into tiers and ordered by dependency.`,
+      primary: true,
+    },
+    ...(track.hasRoadmap
+      ? [{
+          to: `${base}/roadmap`,
+          label: 'Study roadmap',
+          icon: 'MapRounded',
+          text: 'A 12-week plan with weekly goals, targets and the habits that make it work.',
+        }]
+      : []),
+    {
+      to: `${base}/patterns`,
+      label: 'Pattern index',
+      icon: 'PatternRounded',
+      text: `All ${stats.patterns} patterns in one searchable list.`,
+    },
+    {
+      to: `${base}/practice`,
+      label: track.practice.label,
+      icon: 'ChecklistRounded',
+      text: `${stats.problems} ${track.practice.noun}, filterable by chapter and difficulty, with your progress.`,
+    },
+    {
+      to: `${base}/cheatsheet`,
+      label: 'Cheat sheet',
+      icon: 'BoltRounded',
+      text: 'Every rule, default and snippet compressed to one page for revision.',
+    },
+  ]
 
   return (
     <Box>
@@ -105,13 +87,13 @@ export default function DsaHome() {
       <Box
         sx={{
           borderBottom: `1px solid ${theme.palette.divider}`,
-          background: `linear-gradient(180deg, ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.07 : 0.045)}, transparent)`,
+          background: `linear-gradient(180deg, ${alpha(track.color, theme.palette.mode === 'dark' ? 0.09 : 0.055)}, transparent)`,
         }}
       >
         <Container maxWidth="xl" sx={{ px: { xs: 2, md: 3 }, py: { xs: 5, md: 9 } }}>
           <Grid container spacing={4}>
             <Grid size={{ xs: 12, lg: 7.5 }}>
-              <Typography variant="overline" className="mh-fade" sx={{ color: 'primary.main' }}>
+              <Typography variant="overline" className="mh-fade" sx={{ color: track.color }}>
                 {track.hero.eyebrow}
               </Typography>
               <Typography
@@ -120,7 +102,7 @@ export default function DsaHome() {
                 sx={{ fontSize: { xs: '2.1rem', sm: '2.7rem', md: '3.4rem' }, mt: 0.75, mb: 2 }}
               >
                 {track.hero.headline[0]}
-                <Box component="span" sx={{ display: 'block', color: 'primary.main' }}>
+                <Box component="span" sx={{ display: 'block', color: track.color }}>
                   {track.hero.headline[1]}
                 </Box>
               </Typography>
@@ -131,29 +113,18 @@ export default function DsaHome() {
                 {track.hero.lead}
               </Typography>
 
-              <Stack
-                direction={{ xs: 'column', sm: 'row' }}
-                spacing={1.5}
-                className="mh-rise mh-d3"
-                sx={{ mt: 3.5 }}
-              >
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} className="mh-rise mh-d3" sx={{ mt: 3.5 }}>
                 <Button
                   component={RouterLink}
-                  to={`/dsa/${firstChapter.id}`}
+                  to={`${base}/${firstChapter.id}`}
                   variant="contained"
                   size="large"
                   endIcon={<ArrowForwardRoundedIcon />}
-                  sx={{ px: 3 }}
+                  sx={{ px: 3, bgcolor: track.color, '&:hover': { bgcolor: track.color, filter: 'brightness(0.92)' } }}
                 >
                   Start chapter 1
                 </Button>
-                <Button
-                  component={RouterLink}
-                  to="/dsa/chapters"
-                  variant="outlined"
-                  size="large"
-                  sx={{ px: 3 }}
-                >
+                <Button component={RouterLink} to={`${base}/chapters`} variant="outlined" size="large" sx={{ px: 3 }}>
                   Browse all chapters
                 </Button>
               </Stack>
@@ -167,7 +138,7 @@ export default function DsaHome() {
               >
                 <Stat value={stats.topics} label="CHAPTERS" />
                 <Stat value={stats.patterns} label="PATTERNS" />
-                <Stat value={stats.problems} label="PROBLEMS" />
+                <Stat value={stats.problems} label={track.practice.noun.toUpperCase()} />
                 <Stat value={stats.sections} label="LESSONS" />
                 <Stat value={`${stats.hours}h`} label="OF STUDY" />
               </Stack>
@@ -180,20 +151,24 @@ export default function DsaHome() {
                     <Typography variant="body2" sx={{ fontWeight: 700 }}>Your progress</Typography>
                     <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                       <Typography variant="body2" color="text.secondary">
-                        {count} / {totalProblems} solved
+                        {solvedHere} / {allProblems.length} done
                       </Typography>
                       <Tooltip title="Reset all progress">
                         <span>
-                          <IconButton size="small" onClick={reset} disabled={count === 0}>
+                          <IconButton size="small" onClick={reset} disabled={solvedHere === 0}>
                             <RestartAltRoundedIcon fontSize="inherit" />
                           </IconButton>
                         </span>
                       </Tooltip>
                     </Stack>
                   </Stack>
-                  <LinearProgress variant="determinate" value={pct} />
+                  <LinearProgress
+                    variant="determinate"
+                    value={pct}
+                    sx={{ bgcolor: alpha(track.color, 0.14), '& .MuiLinearProgress-bar': { bgcolor: track.color } }}
+                  />
                   <Typography variant="caption" color="text.disabled" sx={{ mt: 0.75, display: 'block' }}>
-                    Saved in this browser only — tick problems off as you solve them.
+                    Saved in this browser only — tick items off as you finish them.
                   </Typography>
                 </CardContent>
               </Card>
@@ -204,75 +179,67 @@ export default function DsaHome() {
 
       <Container maxWidth="xl" sx={{ px: { xs: 2, md: 3 }, py: { xs: 5, md: 7 } }}>
         {/* ----------------------------- destinations ---------------------------- */}
-        <Typography variant="overline" sx={{ color: 'primary.main' }}>In this track</Typography>
+        <Typography variant="overline" sx={{ color: track.color }}>In this track</Typography>
         <Typography variant="h4" sx={{ mb: 3.5, mt: 0.5, fontSize: { xs: '1.55rem', md: '1.95rem' } }}>
-          Five ways in
+          {destinations.length} ways in
         </Typography>
 
         <Grid container spacing={2}>
-          {DESTINATIONS.map((d, i) => {
-            const { Icon } = d
-            return (
-              <Grid key={d.to} size={{ xs: 12, sm: 6, lg: d.primary ? 4 : 2 }}>
-                <Card
-                  className="mh-rise"
-                  sx={{
-                    height: '100%',
-                    animationDelay: `${i * 55}ms`,
-                    borderColor: d.primary ? alpha(theme.palette.primary.main, 0.4) : undefined,
-                    bgcolor: d.primary
-                      ? alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.08 : 0.04)
-                      : undefined,
-                    transition: 'transform 160ms ease, border-color 160ms ease',
-                    '&:hover': { transform: 'translateY(-2px)', borderColor: alpha(theme.palette.primary.main, 0.6) },
-                  }}
-                >
-                  <CardActionArea component={RouterLink} to={d.to} sx={{ height: '100%', alignItems: 'stretch' }}>
-                    <CardContent sx={{ p: 2.25 }}>
-                      <Icon sx={{ fontSize: 22, color: 'primary.main', mb: 1 }} />
-                      <Typography sx={{ fontWeight: 720, mb: 0.5 }}>{d.label}</Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.83rem', lineHeight: 1.6 }}>
-                        {d.text}
-                      </Typography>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
-              </Grid>
-            )
-          })}
+          {destinations.map((d, i) => (
+            <Grid key={d.to} size={{ xs: 12, sm: 6, lg: d.primary ? 4 : 2 }}>
+              <Card
+                className="mh-rise"
+                sx={{
+                  height: '100%',
+                  animationDelay: `${i * 55}ms`,
+                  borderColor: d.primary ? alpha(track.color, 0.4) : undefined,
+                  bgcolor: d.primary ? alpha(track.color, theme.palette.mode === 'dark' ? 0.08 : 0.04) : undefined,
+                  transition: 'transform 160ms ease, border-color 160ms ease',
+                  '&:hover': { transform: 'translateY(-2px)', borderColor: alpha(track.color, 0.6) },
+                }}
+              >
+                <CardActionArea component={RouterLink} to={d.to} sx={{ height: '100%', alignItems: 'stretch' }}>
+                  <CardContent sx={{ p: 2.25 }}>
+                    <TopicIcon name={d.icon} sx={{ fontSize: 22, color: track.color, mb: 1 }} />
+                    <Typography sx={{ fontWeight: 720, mb: 0.5 }}>{d.label}</Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.83rem', lineHeight: 1.6 }}>
+                      {d.text}
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            </Grid>
+          ))}
         </Grid>
 
         <Divider sx={{ my: 6 }} />
 
         {/* ------------------------------- habits -------------------------------- */}
-        <Typography variant="overline" sx={{ color: 'primary.main' }}>How to use this track</Typography>
+        <Typography variant="overline" sx={{ color: track.color }}>How to use this track</Typography>
         <Typography variant="h4" sx={{ mb: 4, mt: 0.5, fontSize: { xs: '1.55rem', md: '1.95rem' } }}>
           Four habits that actually work
         </Typography>
 
         <Grid container spacing={2.5}>
-          {HABITS.map((h, i) => {
-            const { Icon } = h
-            return (
-              <Grid key={h.title} size={{ xs: 12, sm: 6, lg: 3 }}>
-                <Box className="mh-rise" sx={{ animationDelay: `${i * 60}ms` }}>
-                  <Icon sx={{ color: 'primary.main', mb: 1.25 }} />
-                  <Typography sx={{ fontWeight: 700, mb: 0.75 }}>{h.title}</Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-                    {h.text}
-                  </Typography>
-                </Box>
-              </Grid>
-            )
-          })}
+          {track.habits.map((h, i) => (
+            <Grid key={h.title} size={{ xs: 12, sm: 6, lg: 3 }}>
+              <Box className="mh-rise" sx={{ animationDelay: `${i * 60}ms` }}>
+                <TopicIcon name={h.icon} sx={{ color: track.color, mb: 1.25 }} />
+                <Typography sx={{ fontWeight: 700, mb: 0.75 }}>{h.title}</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
+                  {h.text}
+                </Typography>
+              </Box>
+            </Grid>
+          ))}
         </Grid>
 
         <Divider sx={{ my: 6 }} />
 
         {/* -------------------------------- tiers -------------------------------- */}
-        <Typography variant="overline" sx={{ color: 'primary.main' }}>The shape of the syllabus</Typography>
+        <Typography variant="overline" sx={{ color: track.color }}>The shape of the syllabus</Typography>
         <Typography variant="h4" sx={{ mb: 1, mt: 0.5, fontSize: { xs: '1.55rem', md: '1.95rem' } }}>
-          Four tiers, built in order
+          {topicsByTier.length} tiers, built in order
         </Typography>
         <Typography color="text.secondary" sx={{ mb: 3.5, maxWidth: 680 }}>
           Each tier assumes the one before it. Pick the tier that matches where you are and it will
@@ -281,14 +248,14 @@ export default function DsaHome() {
 
         <Grid container spacing={2}>
           {topicsByTier.map((tier, i) => {
-            const color = tierColor[tier.name]
-            const tierProblems = tier.topics.reduce((n, t) => n + (t.problems?.length || 0), 0)
+            const color = tierColor[tier.name] || track.color
+            const tierItems = tier.topics.reduce((n, t) => n + (t.problems?.length || 0), 0)
             return (
               <Grid key={tier.name} size={{ xs: 12, sm: 6, lg: 3 }}>
                 <Paper
                   variant="outlined"
                   component={RouterLink}
-                  to={`/dsa/chapters#${tierAnchor(tier.name)}`}
+                  to={`${base}/chapters#${tierAnchor(tier.name)}`}
                   className="mh-rise"
                   sx={{
                     display: 'block', p: 2.25, height: '100%', textDecoration: 'none',
@@ -311,9 +278,9 @@ export default function DsaHome() {
                     </Box>
                     <Box>
                       <Typography sx={{ fontWeight: 800, fontSize: '1.15rem', lineHeight: 1.2, color }}>
-                        {tierProblems}
+                        {tierItems}
                       </Typography>
-                      <Typography variant="caption" color="text.disabled">problems</Typography>
+                      <Typography variant="caption" color="text.disabled">{track.practice.noun}</Typography>
                     </Box>
                   </Stack>
                   <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.85rem', lineHeight: 1.65 }}>

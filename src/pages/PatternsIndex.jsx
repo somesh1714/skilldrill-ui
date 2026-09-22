@@ -9,12 +9,14 @@ import SearchRoundedIcon from '@mui/icons-material/SearchRounded'
 import { alpha, useTheme } from '@mui/material/styles'
 import PageHeader from '../components/PageHeader.jsx'
 import PatternCard from '../components/PatternCard.jsx'
-import { allPatterns, topics, TIERS } from '../content/index.js'
-import { trackCrumb } from '../content/tracks.js'
+import { contentFor } from '../content/index.js'
+import { trackCrumb, tracksById } from '../content/tracks.js'
 import { tierColor } from '../theme.js'
 
-export default function PatternsIndex() {
+export default function PatternsIndex({ trackId = 'dsa' }) {
   const theme = useTheme()
+  const track = tracksById[trackId]
+  const { allPatterns, topics, tiers } = contentFor(trackId)
   const [query, setQuery] = useState('')
   const [tier, setTier] = useState('All')
   const [topicId, setTopicId] = useState('All')
@@ -31,7 +33,7 @@ export default function PatternsIndex() {
       ].join(' ').toLowerCase()
       return haystack.includes(q)
     })
-  }, [query, tier, topicId])
+  }, [query, tier, topicId, allPatterns])
 
   return (
     <Box>
@@ -39,8 +41,8 @@ export default function PatternsIndex() {
         eyebrow="Reference"
         title="Pattern index"
         lead="Every named pattern in the curriculum, in one searchable place. Search by a phrase from a problem statement — “minimum number of rooms”, “at most k distinct”, “next greater” — and the pattern that solves it should surface."
-        crumbs={[{ label: 'Home', to: '/' }, trackCrumb('dsa'), { label: 'Patterns' }]}
-        chips={[{ label: `${allPatterns.length} patterns` }, { label: `${topics.length} topics` }]}
+        crumbs={[{ label: 'Home', to: '/' }, trackCrumb(trackId), { label: 'Patterns' }]}
+        chips={[{ label: `${allPatterns.length} patterns` }, { label: `${topics.length} chapters` }]}
       />
 
       <Container maxWidth="xl" sx={{ px: { xs: 2, md: 3 }, py: { xs: 3, md: 4 } }}>
@@ -68,7 +70,7 @@ export default function PatternsIndex() {
                 TIER
               </Typography>
               <ToggleButtonGroup size="small" exclusive value={tier} onChange={(_, v) => v && setTier(v)}>
-                {['All', ...TIERS.map((t) => t.name)].map((t) => (
+                {['All', ...tiers.map((t) => t.name)].map((t) => (
                   <ToggleButton key={t} value={t} sx={{ px: 1.5, textTransform: 'none', fontWeight: 600 }}>
                     {t}
                   </ToggleButton>
@@ -117,7 +119,7 @@ export default function PatternsIndex() {
                 <Box sx={{ mt: 0.75, textAlign: 'right' }}>
                   <MuiLink
                     component={RouterLink}
-                    to={`/dsa/${p.topicId}#pattern-${p.id}`}
+                    to={`${track.to}/${p.topicId}#pattern-${p.id}`}
                     underline="hover"
                     sx={{ fontSize: '0.8rem' }}
                   >

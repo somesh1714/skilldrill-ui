@@ -7,16 +7,20 @@ import SearchRoundedIcon from '@mui/icons-material/SearchRounded'
 import { alpha, useTheme } from '@mui/material/styles'
 import PageHeader from '../components/PageHeader.jsx'
 import TopicCard from '../components/TopicCard.jsx'
-import { topics, topicsByTier, allProblems, stats } from '../content/index.js'
-import { trackCrumb, trackLabel } from '../content/tracks.js'
+import { contentFor } from '../content/index.js'
+import { trackCrumb, trackLabel, tracksById } from '../content/tracks.js'
 import { tierColor } from '../theme.js'
 import { useProgress, problemKey } from '../lib/progress.js'
 import { tierAnchor } from '../lib/anchors.js'
 
-export default function Chapters() {
+export default function Chapters({ trackId = 'dsa' }) {
   const theme = useTheme()
   const [query, setQuery] = useState('')
-  const { solved, count } = useProgress()
+  const { solved } = useProgress()
+
+  const track = tracksById[trackId]
+  const { topics, topicsByTier, allProblems, stats } = contentFor(trackId)
+  const solvedHere = allProblems.filter((p) => solved[problemKey(p.topicId, p.name)]).length
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -27,19 +31,19 @@ export default function Chapters() {
         t.tagline.toLowerCase().includes(q) ||
         (t.patterns || []).some((p) => p.name.toLowerCase().includes(q)),
     )
-  }, [query])
+  }, [query, topics])
 
   return (
     <Box>
       <PageHeader
-        eyebrow={trackLabel('dsa')}
+        eyebrow={trackLabel(trackId)}
         title="Chapters"
-        lead="Twenty-one chapters, ordered so each one earns the next. Start at the top if you are building from scratch; jump to a tier if you already know where you are weak."
-        crumbs={[{ label: 'Home', to: '/' }, trackCrumb('dsa'), { label: 'Chapters' }]}
+        lead={`${stats.topics} chapters, ordered so each one earns the next. Start at the top if you are building from scratch; jump to a tier if you already know where you are weak.`}
+        crumbs={[{ label: 'Home', to: '/' }, trackCrumb(trackId), { label: 'Chapters' }]}
         chips={[
           { label: `${stats.topics} chapters` },
           { label: `${stats.hours}h of study` },
-          { label: `${count} / ${allProblems.length} problems solved`, color: count ? 'success' : undefined },
+          { label: `${solvedHere} / ${allProblems.length} ${track.practice.noun} done`, color: solvedHere ? 'success' : undefined },
         ]}
       >
         <Stack direction="row" spacing={0.75} useFlexGap sx={{ flexWrap: 'wrap' }}>
@@ -101,7 +105,7 @@ export default function Chapters() {
               <Grid container spacing={2}>
                 {filtered.map((t, i) => (
                   <Grid key={t.id} size={{ xs: 12, sm: 6, lg: 4, xl: 3 }}>
-                    <TopicCard topic={t} index={i} />
+                    <TopicCard topic={t} trackId={trackId} index={i} />
                   </Grid>
                 ))}
               </Grid>
@@ -142,14 +146,14 @@ export default function Chapters() {
                       </Typography>
                     </Box>
                     <Typography variant="caption" color="text.disabled" sx={{ whiteSpace: 'nowrap' }}>
-                      {tierDone} / {keys.length} problems done
+                      {tierDone} / {keys.length} {track.practice.noun} done
                     </Typography>
                   </Stack>
 
                   <Grid container spacing={2}>
                     {tier.topics.map((t, i) => (
                       <Grid key={t.id} size={{ xs: 12, sm: 6, lg: 4, xl: 3 }}>
-                        <TopicCard topic={t} index={i} />
+                        <TopicCard topic={t} trackId={trackId} index={i} />
                       </Grid>
                     ))}
                   </Grid>

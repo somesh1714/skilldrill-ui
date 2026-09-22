@@ -1,88 +1,71 @@
-import complexity from './topics/complexity.js'
-import arrays from './topics/arrays.js'
-import twoPointers from './topics/two-pointers.js'
-import binarySearch from './topics/binary-search.js'
-import hashing from './topics/hashing.js'
-import strings from './topics/strings.js'
-import sorting from './topics/sorting.js'
-import linkedList from './topics/linked-list.js'
-import stacksQueues from './topics/stacks-queues.js'
-import recursion from './topics/recursion.js'
-import trees from './topics/trees.js'
-import heaps from './topics/heaps.js'
-import graphs from './topics/graphs.js'
-import intervals from './topics/intervals.js'
-import greedy from './topics/greedy.js'
-import dp from './topics/dp.js'
-import tries from './topics/tries.js'
-import unionFind from './topics/union-find.js'
-import bitManipulation from './topics/bit-manipulation.js'
-import math from './topics/math.js'
-import advancedStructures from './topics/advanced-structures.js'
+import * as dsa from './dsa/index.js'
+import * as spring from './spring/index.js'
 
-export const topics = [
-  complexity, arrays, twoPointers, binarySearch, hashing, strings, sorting,
-  linkedList, stacksQueues, recursion, trees, heaps, graphs, intervals, greedy,
-  dp, tries, unionFind, bitManipulation, math, advancedStructures,
-].sort((a, b) => a.order - b.order)
+/**
+ * Every track's chapters live in its own folder and expose the same two
+ * exports: `topics` and `tiers`. Everything a page needs is derived from those
+ * here, so pages never care which track they are rendering.
+ */
+const TRACK_CONTENT = { dsa, spring }
 
-export const topicsById = Object.fromEntries(topics.map((t) => [t.id, t]))
+/** Tier names are shared across tracks so colours and cards stay consistent. */
+export const TIER_NAMES = ['Foundations', 'Core', 'Advanced', 'Elite']
 
-export const TIERS = [
-  {
-    name: 'Foundations',
-    blurb: 'The substrate. Every later chapter assumes you are fluent here — do not skip ahead.',
-  },
-  {
-    name: 'Core',
-    blurb: 'The structures that make up the bulk of real interviews. This is where most of your time goes.',
-  },
-  {
-    name: 'Advanced',
-    blurb: 'The techniques that separate a good candidate from a strong one. Slower to learn, high payoff.',
-  },
-  {
-    name: 'Elite',
-    blurb: 'Rare in a screen, decisive in a hard round or a contest. Learn to recognise them first, implement second.',
-  },
-]
+export const DIFFICULTY_ORDER = { Easy: 0, Medium: 1, Hard: 2 }
 
-export const topicsByTier = TIERS.map((tier) => ({
-  ...tier,
-  topics: topics.filter((t) => t.tier === tier.name),
-}))
+const cache = new Map()
 
-export const allProblems = topics.flatMap((t) =>
-  (t.problems || []).map((p) => ({
-    ...p,
-    topicId: t.id,
-    topicTitle: t.short || t.title,
-  })),
-)
+function build(trackId) {
+  const source = TRACK_CONTENT[trackId]
+  if (!source) {
+    return {
+      trackId, topics: [], topicsById: {}, tiers: [], topicsByTier: [],
+      allProblems: [], allPatterns: [], stats: { topics: 0, patterns: 0, problems: 0, hours: 0, sections: 0 },
+    }
+  }
 
-export const allPatterns = topics.flatMap((t) =>
-  (t.patterns || []).map((p) => ({
-    ...p,
-    topicId: t.id,
-    topicTitle: t.short || t.title,
-    tier: t.tier,
-  })),
-)
+  const topics = [...(source.topics || [])].sort((a, b) => a.order - b.order)
+  const tiers = source.tiers || []
 
-export const stats = {
-  topics: topics.length,
-  patterns: allPatterns.length,
-  problems: allProblems.length,
-  hours: topics.reduce((sum, t) => sum + (t.estHours || 0), 0),
-  sections: topics.reduce((sum, t) => sum + (t.sections?.length || 0), 0),
+  const allProblems = topics.flatMap((t) =>
+    (t.problems || []).map((p) => ({ ...p, trackId, topicId: t.id, topicTitle: t.short || t.title })),
+  )
+  const allPatterns = topics.flatMap((t) =>
+    (t.patterns || []).map((p) => ({ ...p, trackId, topicId: t.id, topicTitle: t.short || t.title, tier: t.tier })),
+  )
+
+  return {
+    trackId,
+    topics,
+    topicsById: Object.fromEntries(topics.map((t) => [t.id, t])),
+    tiers,
+    topicsByTier: tiers
+      .map((tier) => ({ ...tier, topics: topics.filter((t) => t.tier === tier.name) }))
+      .filter((tier) => tier.topics.length > 0),
+    allProblems,
+    allPatterns,
+    stats: {
+      topics: topics.length,
+      patterns: allPatterns.length,
+      problems: allProblems.length,
+      hours: topics.reduce((sum, t) => sum + (t.estHours || 0), 0),
+      sections: topics.reduce((sum, t) => sum + (t.sections?.length || 0), 0),
+    },
+  }
 }
 
-export function neighbours(topicId) {
+/** Everything a page needs for one track. Memoised — the result is immutable. */
+export function contentFor(trackId) {
+  if (!cache.has(trackId)) cache.set(trackId, build(trackId))
+  return cache.get(trackId)
+}
+
+/** Previous/next chapter within a track, for the footer navigation. */
+export function neighbours(trackId, topicId) {
+  const { topics } = contentFor(trackId)
   const i = topics.findIndex((t) => t.id === topicId)
   return {
     prev: i > 0 ? topics[i - 1] : null,
     next: i >= 0 && i < topics.length - 1 ? topics[i + 1] : null,
   }
 }
-
-export const DIFFICULTY_ORDER = { Easy: 0, Medium: 1, Hard: 2 }

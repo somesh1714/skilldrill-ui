@@ -6,7 +6,9 @@ import Grid from '@mui/material/Grid'
 import { alpha, useTheme } from '@mui/material/styles'
 import PageHeader from '../components/PageHeader.jsx'
 import Callout from '../components/Callout.jsx'
-import { topicsById } from '../content/index.js'
+import { contentFor } from '../content/index.js'
+
+const { topicsById } = contentFor('dsa')
 import { trackCrumb } from '../content/tracks.js'
 import { useProgress, problemKey } from '../lib/progress.js'
 

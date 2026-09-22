@@ -7,10 +7,14 @@ A study site for interview preparation, built with Vite + React + Material UI.
 The app home page is a **track picker** — nothing else. Each track owns its own
 home page, its own headline copy and its own navigation.
 
-The **Data Structures & Algorithms** track is complete: 21 chapters, 106 named patterns and 459
-curated problems, written as a textbook rather than a link dump. Java & Spring
-Boot and System Design are registered tracks with published outlines, waiting on
-chapters.
+Two tracks are complete:
+
+- **Data Structures & Algorithms** — 21 chapters, 106 named patterns, 459 curated
+  problems.
+- **Java & Spring Boot** — 23 chapters, 69 patterns, 232 hands-on exercises,
+  from the JVM memory model through Spring Boot to production concerns.
+
+System Design is registered with a published outline, waiting on chapters.
 
 ## Running it
 
@@ -26,9 +30,10 @@ npm run preview  # serve the production build
 ```
 src/
   content/
-    tracks.js         the track registry: tile copy, hero copy, planned outlines
-    index.js          aggregates every topic, derives tiers/patterns/problems/stats
-    topics/*.js       one file per chapter — this is where all the writing lives
+    tracks.js         the track registry: tile copy, hero copy, habits, planned outlines
+    index.js          contentFor(trackId) — derives tiers/patterns/practice/stats
+    dsa/*.js          one file per DSA chapter
+    spring/*.js       one file per Java & Spring chapter
   components/
     Blocks.jsx        renders a chapter's content blocks (prose, code, tables, callouts…)
     Inline.jsx        tiny inline-markdown parser: **bold**, _italic_, `code`, [links](url)
@@ -38,9 +43,9 @@ src/
     TopicCard.jsx     chapter card with per-topic progress
     AppShell.jsx      top bar, mobile drawer, theme toggle, footer
     PageHeader.jsx    shared page hero with breadcrumbs and chips
-  pages/              Home (track picker), DsaHome (track landing page),
-                      Chapters, TopicPage, PatternsIndex, ProblemsIndex,
-                      CheatSheet, Roadmap, TrackOutline, NotFound
+  pages/              Home (track picker), TrackHome (any track's landing page),
+                      Chapters, TopicPage, PatternsIndex, Practice, CheatSheet,
+                      Roadmap, TrackOutline, NotFound
   lib/
     navigation.js     two-level nav config: tracks (global) + per-track sections
     anchors.js        shared anchor ids so pages can deep-link into each other
@@ -62,7 +67,8 @@ Three levels, each with a distinct job:
 /dsa/problems         problem tracker across every chapter
 /dsa/cheatsheet       one-page revision reference
 /dsa/roadmap          12-week study plan
-/spring               track home (planned outline)
+/spring               the same page set, driven by the same components
+/spring/exercises     this track calls its practice page "Exercises"
 /system-design        track home (planned outline)
 ```
 
@@ -123,16 +129,24 @@ bar is showing.
 
 ## Adding a chapter
 
-Create `src/content/topics/<id>.js` exporting a default object, then add it to the
-two lists in `src/content/index.js`. Nothing else needs to change — the chapter
-page, pattern index, problem tracker, cheat sheet and roadmap all read from the
-same data.
+Create `src/content/<track>/<id>.js` exporting a default object, then add it to
+the two lists in `src/content/<track>/index.js`. Nothing else needs to change —
+the chapter page, pattern index, practice tracker and cheat sheet all read from
+the same data.
+
+A track's content module exports just `topics` and `tiers`; `contentFor(trackId)`
+derives everything else. Adding a whole new track is a folder, a registry entry
+in `tracks.js`, and nothing more — the routes are generated from the registry.
+
+Chapter ids must be unique **across tracks**, because solved-progress keys are
+`topicId::itemName`.
 
 ```js
 export default {
   id, title, short, icon, tier, order, estHours, prereqs: [],
   tagline, mentalModel, whyItMatters,
-  complexity: [{ op, time, space, note }],
+  complexity: [{ op, time, space, note }],   // renders as a complexity table
+  reference:  { title, head: [], rows: [[]] }, // ...or a custom reference table
   sections:   [{ id, title, blocks: [ /* see block types below */ ] }],
   patterns:   [{ id, name, oneLiner, useWhen, recognize, steps,
                  template: { lang, code, caption }, complexity, gotchas, problems }],
