@@ -1,0 +1,87 @@
+:root { color-scheme: light dark; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+
+/* ---- Minimal, tasteful motion. One idea: things rise into place once. ---- */
+@keyframes mh-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes mh-fade { from { opacity: 0 } to { opacity: 1 } }
+
+.mh-rise { animation: mh-rise 520ms cubic-bezier(.22,.8,.3,1) both; }
+.mh-fade { animation: mh-fade 700ms ease both; }
+.mh-d1 { animation-delay: 70ms }
+.mh-d2 { animation-delay: 140ms }
+.mh-d3 { animation-delay: 210ms }
+.mh-d4 { animation-delay: 280ms }
+.mh-d5 { animation-delay: 350ms }
+
+@media (prefers-reduced-motion: reduce) {
+  .mh-rise, .mh-fade { animation: none !important; }
+  html { scroll-behavior: auto; }
+}
+
+/* Header height, published as a variable so anchor offsets and the sticky
+   chapter TOC stay correct. The second nav bar exists only inside a track, and
+   AppShell toggles .mh-has-subnav to say so. */
+:root { --mh-header: 58px; }
+body.mh-has-subnav { --mh-header: 102px; }
+@media (min-width: 900px) {
+  :root { --mh-header: 64px; }
+  body.mh-has-subnav { --mh-header: 108px; }
+}
+
+/* anchor offset so the sticky header never covers a heading */
+[data-anchor] { scroll-margin-top: calc(var(--mh-header) + 18px); }
+
+/* ---------------------------- code blocks ---------------------------- */
+pre.mh-code {
+  margin: 0;
+  padding: 16px 18px;
+  overflow-x: auto;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.68;
+  tab-size: 2;
+}
+pre.mh-code code { font-family: inherit; white-space: pre; }
+
+code.mh-inline {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.855em;
+  padding: 1.5px 6px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+/* Prism tokens — tuned twice, once per theme */
+.mh-light .token.comment, .mh-light .token.prolog, .mh-light .token.doctype { color: #7c8496; font-style: italic }
+.mh-light .token.punctuation { color: #5b6170 }
+.mh-light .token.keyword, .mh-light .token.boolean, .mh-light .token.atrule { color: #a21caf }
+.mh-light .token.class-name { color: #0369a1 }
+.mh-light .token.function { color: #1d4ed8 }
+.mh-light .token.number { color: #b45309 }
+.mh-light .token.string, .mh-light .token.char { color: #15803d }
+.mh-light .token.operator { color: #be123c }
+.mh-light .token.annotation { color: #7c3aed }
+
+.mh-dark .token.comment, .mh-dark .token.prolog, .mh-dark .token.doctype { color: #6b7386; font-style: italic }
+.mh-dark .token.punctuation { color: #9aa1b1 }
+.mh-dark .token.keyword, .mh-dark .token.boolean, .mh-dark .token.atrule { color: #e879f9 }
+.mh-dark .token.class-name { color: #7dd3fc }
+.mh-dark .token.function { color: #93c5fd }
+.mh-dark .token.number { color: #fbbf24 }
+.mh-dark .token.string, .mh-dark .token.char { color: #86efac }
+.mh-dark .token.operator { color: #fda4af }
+.mh-dark .token.annotation { color: #c4b5fd }
+
+/* ascii diagrams */
+pre.mh-ascii {
+  margin: 0;
+  padding: 16px 18px;
+  overflow-x: auto;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
