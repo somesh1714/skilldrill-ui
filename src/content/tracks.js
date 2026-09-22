@@ -116,6 +116,61 @@ export const tracks = [
     },
   },
   {
+    id: 'messaging',
+    to: '/messaging',
+    title: 'Messaging & Event-Driven Architecture',
+    navLabel: 'Messaging',
+    icon: 'ForumRounded',
+    color: '#c2410c',
+    status: 'Available now',
+    ready: true,
+    tags: ['Kafka', 'Events', 'EDA', 'Streaming', 'Queues', 'Distributed systems'],
+    blurb:
+      'Queues, topics and brokers from first principles, then Kafka in real depth — partitions, offsets, replication, exactly-once — and the event-driven patterns that make distributed systems correct instead of merely asynchronous.',
+    bullets: [
+      'Messaging fundamentals and delivery guarantees',
+      'Kafka internals, drawn out step by step',
+      'Outbox, sagas, CQRS and event sourcing',
+    ],
+    habits: [
+      {
+        icon: 'AltRouteRounded',
+        title: 'Follow the diagrams',
+        text: 'Every mechanism in this track is drawn before it is explained. Messaging is a subject where a picture of who holds what, and when, is worth several paragraphs.',
+      },
+      {
+        icon: 'ForumRounded',
+        title: 'Trace one order all the way through',
+        text: 'The whole track uses a single running example — an e-commerce order moving through payment, inventory and shipping. Each chapter adds one more piece to the same story.',
+      },
+      {
+        icon: 'BugReportRounded',
+        title: 'Study the failure, not the happy path',
+        text: 'Anyone can draw the success case. The value is in knowing exactly what happens when the broker dies mid-publish, or the consumer crashes after processing but before acknowledging.',
+      },
+      {
+        icon: 'TerminalRounded',
+        title: 'Run a real broker',
+        text: 'Every lab uses Docker or Testcontainers against a real Kafka. Rebalancing, lag and replication only make sense once you have watched them happen.',
+      },
+    ],
+    practice: {
+      label: 'Labs',
+      path: 'labs',
+      title: 'Hands-on labs',
+      eyebrow: 'Practice',
+      lead: 'Concrete labs against a real broker, ordered from warm-up to hard. Each one states what to build, what to break, and exactly what you should observe when it works — and when it does not.',
+      noun: 'labs',
+    },
+    hasRoadmap: false,
+    hero: {
+      eyebrow: 'Track · Messaging & Event-Driven Architecture',
+      headline: ['Decouple the services.', 'Then handle everything that follows.'],
+      lead:
+        'Asynchronous messaging buys availability and independence, and charges you in ordering, duplicates and debugging. This track covers both halves: how brokers and Kafka actually work, and the patterns that keep an event-driven system correct once the happy path ends.',
+    },
+  },
+  {
     id: 'system-design',
     to: '/system-design',
     title: 'System Design',

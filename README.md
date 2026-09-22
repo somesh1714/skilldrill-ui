@@ -7,12 +7,15 @@ A study site for interview preparation, built with Vite + React + Material UI.
 The app home page is a **track picker** — nothing else. Each track owns its own
 home page, its own headline copy and its own navigation.
 
-Two tracks are complete:
+Three tracks are complete:
 
 - **Data Structures & Algorithms** — 21 chapters, 106 named patterns, 459 curated
   problems.
 - **Java & Spring Boot** — 23 chapters, 69 patterns, 232 hands-on exercises,
   from the JVM memory model through Spring Boot to production concerns.
+- **Messaging & Event-Driven Architecture** — 19 chapters, 57 patterns, 191 labs
+  and 74 flow diagrams, covering messaging fundamentals, Kafka internals, and the
+  patterns that keep event-driven systems correct (outbox, sagas, CQRS).
 
 System Design is registered with a published outline, waiting on chapters.
 
@@ -34,6 +37,7 @@ src/
     index.js          contentFor(trackId) — derives tiers/patterns/practice/stats
     dsa/*.js          one file per DSA chapter
     spring/*.js       one file per Java & Spring chapter
+    messaging/*.js    one file per Messaging & EDA chapter
   components/
     Blocks.jsx        renders a chapter's content blocks (prose, code, tables, callouts…)
     Inline.jsx        tiny inline-markdown parser: **bold**, _italic_, `code`, [links](url)
@@ -69,6 +73,8 @@ Three levels, each with a distinct job:
 /dsa/roadmap          12-week study plan
 /spring               the same page set, driven by the same components
 /spring/exercises     this track calls its practice page "Exercises"
+/messaging            same again — Kafka and event-driven architecture
+/messaging/labs       and this one calls it "Labs"
 /system-design        track home (planned outline)
 ```
 

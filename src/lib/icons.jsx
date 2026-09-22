@@ -45,6 +45,20 @@ import SendRounded from '@mui/icons-material/SendRounded'
 import TuneRounded from '@mui/icons-material/TuneRounded'
 import AutoAwesomeRounded from '@mui/icons-material/AutoAwesomeRounded'
 
+// --- Messaging / EDA chapter icons ---
+import CompareArrowsRounded from '@mui/icons-material/CompareArrowsRounded'
+import InboxRounded from '@mui/icons-material/InboxRounded'
+import VerifiedRounded from '@mui/icons-material/VerifiedRounded'
+import BalanceRounded from '@mui/icons-material/BalanceRounded'
+import UploadRounded from '@mui/icons-material/UploadRounded'
+import DownloadRounded from '@mui/icons-material/DownloadRounded'
+import ContentCopyRounded from '@mui/icons-material/ContentCopyRounded'
+import OutboxRounded from '@mui/icons-material/OutboxRounded'
+import AltRouteRounded from '@mui/icons-material/AltRouteRounded'
+import SchemaRounded from '@mui/icons-material/SchemaRounded'
+import TimelineRounded from '@mui/icons-material/TimelineRounded'
+import ForumRounded from '@mui/icons-material/ForumRounded'
+
 // --- UI chrome icons referenced from data ---
 import MenuBookRounded from '@mui/icons-material/MenuBookRounded'
 import PatternRounded from '@mui/icons-material/PatternRounded'
@@ -68,6 +82,10 @@ const MAP = {
   ReceiptLongRounded, ShieldRounded, ScienceRounded, BoltOutlined,
   MonitorHeartRounded, HealthAndSafetyRounded, SendRounded, TuneRounded,
   AutoAwesomeRounded,
+
+  CompareArrowsRounded, InboxRounded, VerifiedRounded, BalanceRounded,
+  UploadRounded, DownloadRounded, ContentCopyRounded, OutboxRounded,
+  AltRouteRounded, SchemaRounded, TimelineRounded, ForumRounded,
 
   MenuBookRounded, PatternRounded, FormatListNumberedRounded, LibraryBooksRounded,
   MapRounded, ChecklistRounded, TerminalRounded, BugReportRounded,
