@@ -59,6 +59,21 @@ import SchemaRounded from '@mui/icons-material/SchemaRounded'
 import TimelineRounded from '@mui/icons-material/TimelineRounded'
 import ForumRounded from '@mui/icons-material/ForumRounded'
 
+// --- AI / LLM chapter icons ---
+import SmartToyRounded from '@mui/icons-material/SmartToyRounded'
+import PsychologyRounded from '@mui/icons-material/PsychologyRounded'
+import BubbleChartRounded from '@mui/icons-material/BubbleChartRounded'
+import ContentCutRounded from '@mui/icons-material/ContentCutRounded'
+import TravelExploreRounded from '@mui/icons-material/TravelExploreRounded'
+import ManageSearchRounded from '@mui/icons-material/ManageSearchRounded'
+import HandymanRounded from '@mui/icons-material/HandymanRounded'
+import LoopRounded from '@mui/icons-material/LoopRounded'
+import CableRounded from '@mui/icons-material/CableRounded'
+import GroupWorkRounded from '@mui/icons-material/GroupWorkRounded'
+import FactCheckRounded from '@mui/icons-material/FactCheckRounded'
+import ChatRounded from '@mui/icons-material/ChatRounded'
+import AccountBalanceWalletRounded from '@mui/icons-material/AccountBalanceWalletRounded'
+
 // --- UI chrome icons referenced from data ---
 import MenuBookRounded from '@mui/icons-material/MenuBookRounded'
 import PatternRounded from '@mui/icons-material/PatternRounded'
@@ -86,6 +101,11 @@ const MAP = {
   CompareArrowsRounded, InboxRounded, VerifiedRounded, BalanceRounded,
   UploadRounded, DownloadRounded, ContentCopyRounded, OutboxRounded,
   AltRouteRounded, SchemaRounded, TimelineRounded, ForumRounded,
+
+  SmartToyRounded, PsychologyRounded, BubbleChartRounded, ContentCutRounded,
+  TravelExploreRounded, ManageSearchRounded, HandymanRounded, LoopRounded,
+  CableRounded, GroupWorkRounded, FactCheckRounded, ChatRounded,
+  AccountBalanceWalletRounded,
 
   MenuBookRounded, PatternRounded, FormatListNumberedRounded, LibraryBooksRounded,
   MapRounded, ChecklistRounded, TerminalRounded, BugReportRounded,

@@ -171,6 +171,61 @@ export const tracks = [
     },
   },
   {
+    id: 'ai',
+    to: '/ai',
+    title: 'AI Engineering: LLMs, RAG & Agents',
+    navLabel: 'AI',
+    icon: 'SmartToyRounded',
+    color: '#be123c',
+    status: 'Available now',
+    ready: true,
+    tags: ['LLM', 'RAG', 'Agents', 'Agentic AI', 'Tool use', 'MCP', 'Python', 'Prompting'],
+    blurb:
+      'How a language model actually works, then everything you build on top of one: prompting, structured output, embeddings and RAG, tool use, the agent loop, MCP, multi-agent systems, agentic workflows, evals and production hardening.',
+    bullets: [
+      'Tokens, attention and decoding \u2014 the machinery, drawn out',
+      'RAG from a first pipeline to hybrid search and reranking',
+      'Tool use, the agent loop, MCP and agentic workflows',
+    ],
+    habits: [
+      {
+        icon: 'PsychologyRounded',
+        title: 'Learn the machine before the library',
+        text: 'Almost every AI bug is really a misunderstanding of what the model does with the text you hand it. The first tier is about tokens, context and decoding, because that is what makes the rest predictable instead of mysterious.',
+      },
+      {
+        icon: 'TerminalRounded',
+        title: 'Run every snippet against a real model',
+        text: 'The code here is small, complete and Python. Type it, change one parameter, and watch the output move. Nothing teaches temperature or context limits faster than hitting them yourself.',
+      },
+      {
+        icon: 'AltRouteRounded',
+        title: 'Reach for the simplest tier that works',
+        text: 'One call beats a workflow, a workflow beats an agent. Each chapter says what it costs you in latency, money and debuggability to move up a tier \u2014 so you only pay when the problem demands it.',
+      },
+      {
+        icon: 'FactCheckRounded',
+        title: 'Measure it, or you are guessing',
+        text: 'LLM systems fail quietly and non-deterministically. Every chapter names what to log and what to score, and the evals chapter turns \u201cit feels better\u201d into a number you can defend.',
+      },
+    ],
+    practice: {
+      label: 'Builds',
+      path: 'builds',
+      title: 'Hands-on builds',
+      eyebrow: 'Practice',
+      lead: 'Concrete things to build, ordered from warm-up to hard. Each one states what to build, what to break, and exactly what you should observe \u2014 including what it should cost you in tokens.',
+      noun: 'builds',
+    },
+    hasRoadmap: false,
+    hero: {
+      eyebrow: 'Track \u00b7 AI Engineering',
+      headline: ['Understand the model.', 'Then the agent stops guessing.'],
+      lead:
+        'A complete course on building with large language models \u2014 from what a token is, through retrieval and tool use, to agents and agentic workflows that survive production. Every mechanism is drawn before it is coded, and every chapter says what it costs.',
+    },
+  },
+  {
     id: 'system-design',
     to: '/system-design',
     title: 'System Design',

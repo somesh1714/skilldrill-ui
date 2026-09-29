@@ -7,7 +7,7 @@ A study site for interview preparation, built with Vite + React + Material UI.
 The app home page is a **track picker** — nothing else. Each track owns its own
 home page, its own headline copy and its own navigation.
 
-Three tracks are complete:
+Four tracks are complete:
 
 - **Data Structures & Algorithms** — 21 chapters, 106 named patterns, 459 curated
   problems.
@@ -16,6 +16,10 @@ Three tracks are complete:
 - **Messaging & Event-Driven Architecture** — 19 chapters, 57 patterns, 191 labs
   and 74 flow diagrams, covering messaging fundamentals, Kafka internals, and the
   patterns that keep event-driven systems correct (outbox, sagas, CQRS).
+- **AI Engineering: LLMs, RAG & Agents** — 21 chapters, 93 patterns, 210 builds
+  and 76 diagrams, from tokens and attention through structured output, embeddings
+  and RAG to tool use, the agent loop, MCP, multi-agent systems, agentic
+  workflows, evals, prompt-injection defence and production operations.
 
 System Design is registered with a published outline, waiting on chapters.
 
@@ -38,6 +42,7 @@ src/
     dsa/*.js          one file per DSA chapter
     spring/*.js       one file per Java & Spring chapter
     messaging/*.js    one file per Messaging & EDA chapter
+    ai/*.js           one file per AI Engineering chapter
   components/
     Blocks.jsx        renders a chapter's content blocks (prose, code, tables, callouts…)
     Inline.jsx        tiny inline-markdown parser: **bold**, _italic_, `code`, [links](url)
@@ -75,6 +80,8 @@ Three levels, each with a distinct job:
 /spring/exercises     this track calls its practice page "Exercises"
 /messaging            same again — Kafka and event-driven architecture
 /messaging/labs       and this one calls it "Labs"
+/ai                   same again — LLMs, RAG, tool use and agents
+/ai/builds            this one calls its practice page "Builds"
 /system-design        track home (planned outline)
 ```
 
@@ -180,7 +187,15 @@ export default {
 | `key` `tip` `warn` `note` `trap` | `title`, `text`  | Coloured callout                        |
 
 Inside any text field you can use `**bold**`, `_italic_`, `` `code` `` and
-`[label](https://url)`.
+`[label](https://url)`. Two consequences worth knowing:
+
+- An identifier containing **two or more underscores** in prose (say
+  `cache_read_input_tokens`), or two single-underscore identifiers in the same
+  string, matches the `_italic_` rule and renders as italics. Wrap those in
+  backticks — a code span always wins over the italic rule.
+- `lang` on a `code` block must be one of the Prism grammars imported by
+  `components/CodeBlock.jsx` (currently `java`, `python`, `json`, `bash` and
+  `yaml`). Any other value falls back to an unhighlighted block.
 
 ## Notes
 

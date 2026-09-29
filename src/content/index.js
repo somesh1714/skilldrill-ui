@@ -1,13 +1,14 @@
 import * as dsa from './dsa/index.js'
 import * as spring from './spring/index.js'
 import * as messaging from './messaging/index.js'
+import * as ai from './ai/index.js'
 
 /**
  * Every track's chapters live in its own folder and expose the same two
  * exports: `topics` and `tiers`. Everything a page needs is derived from those
  * here, so pages never care which track they are rendering.
  */
-const TRACK_CONTENT = { dsa, spring, messaging }
+const TRACK_CONTENT = { dsa, spring, messaging, ai }
 
 /** Tier names are shared across tracks so colours and cards stay consistent. */
 export const TIER_NAMES = ['Foundations', 'Core', 'Advanced', 'Elite']
